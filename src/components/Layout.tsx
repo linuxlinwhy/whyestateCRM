@@ -19,6 +19,7 @@ import {
   DollarSign,
   Calendar,
   Folder,
+  Camera,
   Pencil,
   Check as CheckIcon,
   X,
@@ -34,15 +35,21 @@ import {
 type NavDef = { label: string; icon: React.ElementType; path: string; badge: string | null };
 
 const navItems: NavDef[] = [
-  { label: 'Dashboard',    icon: LayoutDashboard, path: ROUTE_PATHS.DASHBOARD,  badge: null },
-  { label: 'Prospect Hub', icon: Target,          path: ROUTE_PATHS.LEADS,      badge: null },
-  { label: 'Deals',        icon: FileText,        path: ROUTE_PATHS.DEALS,      badge: null },
-  { label: 'Properties',   icon: Home,            path: ROUTE_PATHS.LISTINGS,   badge: null },
-  { label: 'Clients',      icon: Users,           path: ROUTE_PATHS.CONTACTS,   badge: null },
-  { label: 'Commission',   icon: DollarSign,      path: ROUTE_PATHS.COMMISSION, badge: null },
-  { label: 'Viewings',     icon: Calendar,        path: ROUTE_PATHS.CALENDAR,   badge: null },
-  { label: 'Documents',    icon: Folder,          path: ROUTE_PATHS.DOCUMENTS,  badge: null },
+  { label: 'Dashboard',     icon: LayoutDashboard, path: ROUTE_PATHS.DASHBOARD,     badge: null },
+  { label: 'Prospect Hub',  icon: Target,          path: ROUTE_PATHS.LEADS,         badge: null },
+  { label: 'Deals',         icon: FileText,        path: ROUTE_PATHS.DEALS,         badge: null },
+  { label: 'Properties',    icon: Home,            path: ROUTE_PATHS.LISTINGS,      badge: null },
+  { label: 'Photo Studio',  icon: Camera,          path: ROUTE_PATHS.PHOTO_STUDIO,  badge: null },
+  { label: 'Clients',       icon: Users,           path: ROUTE_PATHS.CONTACTS,      badge: null },
+  { label: 'Commission',    icon: DollarSign,      path: ROUTE_PATHS.COMMISSION,    badge: null },
+  { label: 'Viewings',      icon: Calendar,        path: ROUTE_PATHS.CALENDAR,      badge: null },
+  { label: 'Documents',     icon: Folder,          path: ROUTE_PATHS.DOCUMENTS,     badge: null },
 ];
+
+// Routes restricted by role. Items not listed here are visible to everyone.
+const NAV_ROLE_GATES: Partial<Record<string, Role[]>> = {
+  [ROUTE_PATHS.PHOTO_STUDIO]: ['master_admin', 'admin', 'editor'],
+};
 
 // Admin Control is restricted to the master-admin account.
 const MASTER_ADMIN_EMAIL = 'linux@whyestate.com';
@@ -306,6 +313,13 @@ function Sidebar({
     item.path === ROUTE_PATHS.ADMIN ? isMasterAdmin(me?.email) : true
   );
 
+  // Filter main nav items by role gates.
+  const meRole = resolveRole(me?.email);
+  const visibleNav = navItems.filter((item) => {
+    const gate = NAV_ROLE_GATES[item.path];
+    return !gate || gate.includes(meRole);
+  });
+
   return (
     <>
       {/* Sidebar panel */}
@@ -335,7 +349,7 @@ function Sidebar({
 
         {/* Main nav */}
         <nav className="flex-1 overflow-y-auto overflow-x-hidden pt-3 pb-1 space-y-0.5">
-          {navItems.map((item) => (
+          {visibleNav.map((item) => (
             <NavItem key={item.path} item={item} collapsed={collapsed} />
           ))}
         </nav>

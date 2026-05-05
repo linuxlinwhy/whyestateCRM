@@ -10,6 +10,7 @@ import Landing from "@/pages/Landing";
 import ProspectHub from "@/pages/ProspectHub";
 import AdminControl from "@/pages/AdminControl";
 import UnderDevelopment from "@/pages/UnderDevelopment";
+import PhotoStudio from "@/pages/photo-studio/Index";
 import NotFound from "./pages/not-found/Index";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,16 @@ const App = () => (
 
           {/* Prospect Hub — the only fully-functional module (gated) */}
           <Route path={ROUTE_PATHS.LEADS} element={<RequireAuth><Layout><ProspectHub /></Layout></RequireAuth>} />
+
+          {/* Photo Studio — vision-driven listing photo enhancement */}
+          <Route
+            path={ROUTE_PATHS.PHOTO_STUDIO}
+            element={
+              <RequireAuth requireRoles={['master_admin', 'admin', 'editor']}>
+                <Layout><PhotoStudio /></Layout>
+              </RequireAuth>
+            }
+          />
 
           {/* All other modules — under development (gated) */}
           <Route path={ROUTE_PATHS.DASHBOARD}  element={<RequireAuth><Layout><UnderDevelopment name="Dashboard" /></Layout></RequireAuth>} />
